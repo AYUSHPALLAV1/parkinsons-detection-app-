@@ -10,8 +10,7 @@ mediapipe
 opencv-python-headless
 scikit-learn
 scikit-image
-torch==2.2.2+cpu
-torchvision==0.17.2+cpu
+torch==2.12.0+cpu
 xgboost
 joblib
 tqdm
