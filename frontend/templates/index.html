@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkinson's Early Detection | AI-Powered Multimodal Assessment</title>
+    <meta name="description" content="An AI-powered early detection system for Parkinson's disease using voice analysis, eye tracking, and handwriting recognition.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_dark.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+    <div class="animated-bg" aria-hidden="true">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+    
+    <!-- Centered Fintech Navbar -->
+    <nav class="navbar-fintech">
+        <div class="logo-fintech" style="margin-right: 10px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#288080"/>
+                <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#288080"/>
+            </svg>
+        </div>
+        <ul class="nav-links-fintech">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/assessment">Assessment</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="#">Research</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+        <div style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+            <a href="/assessment" style="background: var(--accent-primary); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 8px;">
+                Start Assessment
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero-fintech" class="hero-fintech">
+        <!-- Add Video Background (lazy: autoplay deferred to JS IntersectionObserver) -->
+        <video class="hero-video-bg" loop muted playsinline preload="none" data-lazy-video>
+            <source data-src="{{ url_for('static', filename='videos/Male_doctor_waving_202604142344.mp4') }}" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+        <div class="hero-container">
+            <div class="hero-left">
+                <h1 class="fintech-title">Detect Parkinson's Early With AI</h1>
+                
+                <div class="animated-text-roller">
+                    <p class="roller-static-text">Multimodal AI —</p>
+                    <div class="roller-overflow">
+                        <div class="roller-wrapper" id="roller-wrapper">
+                            <p class="roller-item" style="color: #3b82f6;">Voice Analysis</p>
+                            <p class="roller-item" style="color: #fb923c;">Eye Tracking</p>
+                            <p class="roller-item" style="color: #2dd4bf;">Handwriting Detection</p>
+                            <p class="roller-item" style="color: #0ea5e9;">Fusion Diagnosis</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="fintech-subtitle">A non-invasive, AI-powered screening system that combines voice biomarkers, oculomotor patterns, and handwriting analysis to identify early signs of Parkinson's disease — before clinical symptoms appear.</p>
+                
+                <div class="fintech-input-group">
+                    <input type="text" placeholder="Enter your name to begin" class="fintech-input">
+                    <button class="btn-fintech" onclick="window.location.href='/assessment'">Get Started →</button>
+                </div>
+
+                <div class="partner-logos">
+                    <span class="logo-text">KCL Dataset</span>
+                    <span class="logo-text">MediaPipe</span>
+                    <span class="logo-text">PyTorch</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Section 2: Multimodal AI Architecture -->
+    <section id="features" class="features polaroid-section" style="background: #fbfbfd; padding: 120px 8% 100px; min-height: 900px;">
+        <!-- Scroll transition curve at the top edge -->
+        <div class="scroll-transition-curve">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+
+        <!-- Bubble Cloud Background -->
+        <div class="bubble-cloud-bg">
+            <div class="theme-bubble b-1"></div>
+            <div class="theme-bubble b-2"></div>
+            <div class="theme-bubble b-3"></div>
+            <div class="theme-bubble b-4"></div>
+            <div class="theme-bubble b-5"></div>
+        </div>
+
+        <h2 class="multimodal-title">Three Diagnostic Modalities</h2>
+        <div class="polaroid-layout" id="videoLayoutGrid">
+            
+            <!-- Video 1: Eye Tracking -->
+            <div class="polaroid-card video-frame card-1">
+                <div class="polaroid-video-container">
+                    <video class="video-element" loop muted playsinline preload="none" data-lazy-video>
+                        <source data-src="{{ url_for('static', filename='videos/Animated_Character_Scanned_by_Orb.mp4') }}" type="video/mp4">
+                    </video>
+                </div>
+                <div class="video-description">Eye tracking heuristics dynamically measure saccades and gaze velocity via precise facial mesh frameworks.</div>
+            </div>
+            
+            <!-- Video 2: Voice Model -->
+            <div class="polaroid-card video-frame card-2">
+                <div class="polaroid-video-container">
+                    <video class="video-element" loop muted playsinline preload="none" data-lazy-video>
+                        <source data-src="{{ url_for('static', filename='videos/Voice_to_Data_Transformation_Animation.mp4') }}" type="video/mp4">
+                    </video>
+                </div>
+                <div class="video-description">Advanced diagnostic engines isolate acoustic perturbation anomalies like jitter and shimmering vocal frequencies.</div>
+            </div>
+            
+            <!-- Video 3: Handwriting Model -->
+            <div class="polaroid-card video-frame card-3">
+                <div class="polaroid-video-container">
+                    <video class="video-element" loop muted playsinline preload="none" data-lazy-video>
+                        <source data-src="{{ url_for('static', filename='videos/Character_draws_spiral_202604141612.mp4') }}" type="video/mp4">
+                    </video>
+                </div>
+                <div class="video-description">Deep neurological CNN analyzes digitized handwriting spiral patterns to identify critical motor micro-tremors.</div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Scroll Transition: Warp Divider between Section 2 and 3 -->
+    <div class="warp-divider" aria-hidden="true">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none">
+            <path d="M0,160 C360,40 720,200 1080,80 C1260,20 1380,100 1440,60 L1440,200 L0,200 Z" fill="#f0f5f5"/>
+            <path d="M0,180 C240,100 600,200 960,120 C1200,60 1380,140 1440,100 L1440,200 L0,200 Z" fill="#f4f7f7" opacity="0.7"/>
+        </svg>
+    </div>
+
+    <!-- Section 3: Clinical Fusion Layer (Minimalist White) -->
+    <section id="fusion" class="fusion-minimal">
+        <div class="fusion-minimal-content">
+            <p class="fusion-overline">How It Works</p>
+            <h2 class="fusion-minimal-title">Intelligent Fusion Layer</h2>
+            <p class="fusion-minimal-desc">Our system combines calibrated probability estimates from all three diagnostic modules — voice, eye tracking, and handwriting — into a single clinical verdict. Using weighted averaging and robust fallback strategies, we ensure accuracy even when a modality is unavailable.</p>
+            
+            <div class="fusion-stats-row">
+                <div class="fusion-stat-item">
+                    <div class="fusion-stat-number">3</div>
+                    <div class="fusion-stat-label">Neural Modules</div>
+                    <div class="fusion-stat-bar"><div class="fusion-stat-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="fusion-stat-item">
+                    <div class="fusion-stat-number">97%</div>
+                    <div class="fusion-stat-label">Fusion Accuracy</div>
+                    <div class="fusion-stat-bar"><div class="fusion-stat-fill" style="width: 97%;"></div></div>
+                </div>
+                <div class="fusion-stat-item">
+                    <div class="fusion-stat-number">25</div>
+                    <div class="fusion-stat-label">Clinical Features</div>
+                    <div class="fusion-stat-bar"><div class="fusion-stat-fill" style="width: 80%;"></div></div>
+                </div>
+            </div>
+
+            <a href="/assessment" class="fusion-cta-btn">Start Your Assessment →</a>
+        </div>
+    </section>
+
+    <!-- Minimalist White Footer -->
+    <footer class="footer-minimal">
+        <div class="footer-minimal-inner">
+            <div class="footer-minimal-top">
+                <div class="footer-minimal-brand">
+                    <h2 class="footer-minimal-logo">PD<span>Detector</span></h2>
+                    <p class="footer-minimal-tagline">AI-Powered Early Parkinson's Detection System — combining voice, eye tracking, and handwriting analysis for non-invasive screening.</p>
+                </div>
+                <div class="footer-minimal-links">
+                    <div class="footer-minimal-group">
+                        <h4>Platform</h4>
+                        <a href="/assessment">Assessment</a>
+                        <a href="/dashboard">Dashboard</a>
+                        <a href="#">API Access</a>
+                    </div>
+                    <div class="footer-minimal-group">
+                        <h4>Research</h4>
+                        <a href="#">Methodology</a>
+                        <a href="#">Publications</a>
+                        <a href="#">Open Data</a>
+                    </div>
+                    <div class="footer-minimal-group">
+                        <h4>Connect</h4>
+                        <a href="#">GitHub</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Community</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-minimal-divider"></div>
+            <div class="footer-minimal-bottom">
+                <p>&copy; 2026 Parkinson's Disease Early Detection System. Open-Source AI Project.</p>
+                <p class="footer-minimal-disclaimer">Disclaimer: This is an experimental system for research and is not a replacement for professional medical diagnosis.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

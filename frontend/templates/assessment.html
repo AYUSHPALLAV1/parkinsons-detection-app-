@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment | Parkinson's Early Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_dark.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- MediaPipe Face Mesh -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ============================
+           Pre-loading Guide Overlay
+           ============================ */
+        .guide-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 247, 247, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            cursor: pointer;
+            opacity: 0;
+            animation: guideFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes guideFadeIn {
+            to { opacity: 1; }
+        }
+
+        .guide-overlay.fade-out {
+            animation: guideFadeOut 0.4s ease forwards;
+        }
+
+        @keyframes guideFadeOut {
+            to { opacity: 0; pointer-events: none; }
+        }
+
+        .guide-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            max-width: 900px;
+            padding: 30px;
+        }
+
+        .guide-video-box {
+            flex-shrink: 0;
+            width: 360px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        .guide-video-box video {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .guide-text-box {
+            flex: 1;
+        }
+
+        .guide-text-box h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #030a0a;
+            margin-bottom: 16px;
+        }
+
+        .guide-text-box p {
+            font-size: 1.05rem;
+            color: #5a6e6e;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .guide-text-box .guide-hint {
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: #a8bcbc;
+            font-weight: 600;
+            animation: hintPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ============================
+           Story Reader Panel
+           ============================ */
+        .voice-analysis-layout {
+            display: flex;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .voice-analysis-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .story-reader-panel {
+            flex: 0 0 280px;
+            background: #f8fbfb;
+            border: 1px solid #e1eaea;
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 260px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-reader-panel .story-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #288080;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .story-reader-panel .story-line {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #030a0a;
+            text-align: center;
+            line-height: 1.6;
+            opacity: 0;
+            animation: storyLineAppear 2.8s ease forwards;
+            position: absolute;
+            padding: 0 20px;
+        }
+
+        @keyframes storyLineAppear {
+            0% { opacity: 0; transform: translateY(12px); }
+            12% { opacity: 1; transform: translateY(0); }
+            82% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-12px); }
+        }
+
+        .story-reader-panel .story-idle-text {
+            font-size: 0.95rem;
+            color: #a8bcbc;
+            text-align: center;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .guide-container {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .guide-video-box {
+                width: 100%;
+                max-width: 320px;
+            }
+            .voice-analysis-layout {
+                flex-direction: column;
+            }
+            .story-reader-panel {
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="animated-bg">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+    
+    <!-- Voice Analysis Guide Overlay -->
+    <div id="voiceGuideOverlay" class="guide-overlay">
+        <div class="guide-container">
+            <div class="guide-video-box">
+                <video autoplay loop muted playsinline>
+                    <source src="{{ url_for('static', filename='videos/guide_voice.mp4') }}" type="video/mp4">
+                </video>
+            </div>
+            <div class="guide-text-box">
+                <h2>Voice Analysis</h2>
+                <p>You'll be asked to read aloud a short story that appears on screen for <strong>30 seconds</strong>.</p>
+                <p>Speak clearly and at a natural pace. Our AI will analyze vocal patterns — including pitch, shimmer, and frequency variations — to detect early neurological markers.</p>
+                <p>Make sure your microphone is connected and there's minimal background noise.</p>
+                <div class="guide-hint">Click anywhere to begin →</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eye Tracking Guide Overlay (hidden initially) -->
+    <div id="eyeGuideOverlay" class="guide-overlay" style="display: none;">
+        <div class="guide-container">
+            <div class="guide-video-box">
+                <video autoplay loop muted playsinline>
+                    <source src="{{ url_for('static', filename='videos/guide_eye.mp4') }}" type="video/mp4">
+                </video>
+            </div>
+            <div class="guide-text-box">
+                <h2>Eye Tracking Protocol</h2>
+                <p>Your webcam will track your eye movements as you follow on-screen targets.</p>
+                <p>The test includes <strong>4 tasks</strong>: fixation, prosaccade, smooth pursuit, and blink analysis. Each measures a different aspect of oculomotor control.</p>
+                <p>Position your face clearly in front of the camera and ensure good lighting.</p>
+                <div class="guide-hint">Click anywhere to begin →</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centered Fintech Navbar -->
+    <nav class="navbar-fintech">
+        <div class="logo-fintech" style="margin-right: 10px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#288080"/>
+                <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#288080"/>
+            </svg>
+        </div>
+        <ul class="nav-links-fintech">
+            <li><a href="/">Home</a></li>
+            <li><a href="/assessment" class="active">Assessment</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="#">Resources</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+        <div style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+            <a href="/assessment" style="background: var(--accent-primary); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 8px;">
+                Start Assessment
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+    </nav>
+
+    <div style="padding-top: 120px; padding-bottom: 50px; min-height: 100vh;">
+        <div id="secureContextWarning" style="display: none; max-width: 800px; margin: 0 auto 20px; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+            ⚠️ Secure Context Missing: Browser hardware access (camera/mic) may be blocked. Please access the site via <a href="http://localhost:5000">http://localhost:5000</a>.
+        </div>
+        <div class="assessment-container">
+            <h2 style="text-align: center; margin-bottom: 30px;">Multimodal Assessment</h2>
+            
+            <!-- Progress Bar -->
+            <div style="height: 10px; width: 100%; background: #e2e8f0; border-radius: 5px; margin-bottom: 40px; overflow: hidden;">
+                <div id="progress" style="height: 100%; width: 33.3%; background: #2563eb; transition: width 0.5s;"></div>
+            </div>
+
+            <!-- Step 1: Voice Recording -->
+            <div id="step1" class="step active">
+                <h3>Step 1: Voice Analysis</h3>
+                <p style="margin: 10px 0;">Read the story aloud as it appears on the right panel. Speak clearly and naturally for 30 seconds.</p>
+                <div class="voice-analysis-layout">
+                    <div class="voice-analysis-left">
+                        <div id="voiceTimer" style="font-size: 1.5rem; font-weight: 800; color: #2563eb; margin-bottom: 10px; display: none; text-align: center;">30s</div>
+                        <div class="visualizer-container">
+                            <canvas id="waveform" width="700" height="100"></canvas>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <div id="voiceStatus" style="margin-bottom: 15px; color: #64748b; font-weight: 600; display: none;">Processing audio...</div>
+                            <button id="recordBtn" class="cta-button">Start Recording</button>
+                            <button id="stopRecordBtn" class="cta-button" style="display: none; background: #ef4444;">Stop Recording</button>
+                            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                                <button id="skipVoiceBtn" class="cta-button" style="display: none; background: #94a3b8;">Continue to Step 2</button>
+                                <button id="simulateVoiceBtn" class="cta-button" style="display: none; background: #288080;">Simulate Audio</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Story Reader Panel -->
+                    <div class="story-reader-panel" id="storyReaderPanel">
+                        <div class="story-label">Read Aloud</div>
+                        <div class="story-idle-text" id="storyIdleText">Press "Start Recording" to begin the story</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Eye Tracking -->
+            <div id="step2" class="step">
+                <h3>Step 2: Eye Tracking Analysis</h3>
+                <div id="eyeTaskInfo" style="background: #eef2ff; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #2563eb;">
+                    <strong id="taskName">Waiting to start...</strong><br>
+                    <span id="taskInstruction">Click the button below to begin the oculomotor protocol.</span>
+                </div>
+                <div style="position: relative; width: 100%; height: 400px; background: #000; border-radius: 15px; overflow: hidden;">
+                    <video id="inputVideo" style="display: none;"></video>
+                    <canvas id="outputCanvas" width="800" height="400" style="width: 100%; height: 100%;"></canvas>
+                    <div id="target" style="position: absolute; width: 25px; height: 25px; background: white; border: 3px solid red; border-radius: 50%; display: none; box-shadow: 0 0 15px rgba(255,0,0,0.8); z-index: 100;"></div>
+                    <div id="eyeTimer" style="position: absolute; top: 10px; right: 10px; color: white; font-size: 1.2rem; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px;">0s</div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <div id="eyeStatus" style="margin-bottom: 15px; color: #64748b; font-weight: 600; display: none;">Processing eye data...</div>
+                    <button id="startEyeBtn" class="cta-button">Start Protocol</button>
+                    <button id="skipEyeBtn" class="cta-button" style="display: none; background: #94a3b8;">Continue to Step 3</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Handwriting Analysis -->
+            <div id="step3" class="step">
+                <h3>Step 3: Handwriting Analysis</h3>
+                <p style="margin: 10px 0;">Upload a clear photo of your hand-drawn spiral on a plain white paper.</p>
+                <div style="border: 2px dashed #cbd5e1; padding: 40px; text-align: center; border-radius: 15px; margin: 20px 0;">
+                    <input type="file" id="spiralUpload" accept="image/*" style="display: none;">
+                    <label for="spiralUpload" style="cursor: pointer; color: #2563eb; font-weight: 600;">Click to upload image</label>
+                    <div id="previewContainer" style="margin-top: 20px; display: none;">
+                        <img id="spiralPreview" style="max-width: 100%; max-height: 200px; border-radius: 10px;">
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <div id="hwStatus" style="margin-bottom: 15px; color: #64748b; font-weight: 600; display: none;">Analyzing handwriting...</div>
+                    <button id="analyzeBtn" class="cta-button">Analyze & Get Results</button>
+                    <button id="skipHwBtn" class="cta-button" style="display: none; background: #94a3b8;">Show Final Results</button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsStep" class="step">
+                <h3 style="text-align: center; color: #2563eb;">Final Assessment Results</h3>
+                <div style="text-align: center; margin: 30px 0;">
+                    <h2 id="finalVerdict" style="font-size: 2rem;">Inconclusive</h2>
+                    <p id="finalProbText" style="font-size: 1.2rem; color: #64748b;"></p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h4>Voice Score</h4>
+                        <div style="height: 10px; width: 100%; background: #e2e8f0; border-radius: 5px; margin: 10px 0;">
+                            <div id="voiceBar" style="height: 100%; width: 0%; background: #3b82f6; border-radius: 5px;"></div>
+                        </div>
+                        <span id="voiceScore">0%</span>
+                    </div>
+                    <div class="card">
+                        <h4>Eye Score</h4>
+                        <div style="height: 10px; width: 100%; background: #e2e8f0; border-radius: 5px; margin: 10px 0;">
+                            <div id="eyeBar" style="height: 100%; width: 0%; background: #3b82f6; border-radius: 5px;"></div>
+                        </div>
+                        <span id="eyeScore">0%</span>
+                    </div>
+                    <div class="card">
+                        <h4>Handwriting Score</h4>
+                        <div style="height: 10px; width: 100%; background: #e2e8f0; border-radius: 5px; margin: 10px 0;">
+                            <div id="hwBar" style="height: 100%; width: 0%; background: #3b82f6; border-radius: 5px;"></div>
+                        </div>
+                        <span id="hwScore">0%</span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <button onclick="window.location.href='/dashboard'" class="cta-button">View Detailed History</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+</body>
+</html>

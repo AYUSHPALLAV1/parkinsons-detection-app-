@@ -1,0 +1,11 @@
+Dataset/
+26_29_09_2017_KCL/
+ezgif-8a104e2ac92bc98b-jpg/
+*.zip
+*.mp4
+frontend/static/videos/
+tests/
+.git/
+node_modules/
+__pycache__/
+*.pyc

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+build/
+dist/
+*.egg-info/
+
+# Databases
+*.db
+*.sqlite3
+
+# Datasets
+Dataset/
+26_29_09_2017_KCL/
+ezgif-8a104e2ac92bc98b-jpg/
+*.zip
+
+# Models - exclude large files that exceed GitHub 100MB limit
+models/handwriting_cnn_model.pth
+*.bak
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+output.txt
+
+# Large Videos in root
+*.mp4
